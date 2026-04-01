@@ -1,0 +1,1 @@
+"""Database templates and migrations."""
