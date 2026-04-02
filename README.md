@@ -18,6 +18,11 @@ You give a **goal**; a **planner** breaks it into steps; an **executor** runs ea
 
 ## Architecture
 
+![Architecture overview](docs/architecture.png)
+
+<details>
+<summary>Mermaid (text-only equivalent)</summary>
+
 ```mermaid
 flowchart TB
   subgraph api [API]
@@ -37,7 +42,9 @@ flowchart TB
   Run --> P
 ```
 
-Add a static image for recruiters: save as [`docs/architecture.png`](docs/README.md) and link it here if you want a non-Mermaid visual.
+</details>
+
+See [`docs/README.md`](docs/README.md) for diagram asset notes.
 
 ## Tech stack
 
