@@ -1,20 +1,29 @@
-# Multi-Agent AI (LangGraph)
+# Multi-Agent AI System
 
-A production-style **multi-agent** system: **Planner → Executor (loop) → Critic**, with tool use (search, DB, HTTP, code), **vector memory** (Pinecone), **LLM cascade** (Claude → GPT‑4o → Gemini), **SSE** streaming, and **cooperative cancellation** when the client disconnects.
+A production-grade AI agent that completes tasks end-to-end. Give it a goal — it plans, searches the web, executes each step, and checks its own work before returning an answer.
 
-## Portfolio / live demo
+**Built by Honey Umasree Pentakota**
 
-| | |
-|---|---|
-| **Live URL** | _After deploy (e.g. Render):_ `https://your-service.onrender.com` |
-| **Run agent** | `POST /run` — see [Calling `/run`](#calling-run) (requires **Bearer token**) |
-| **Access** | Put a line in your resume/README: _“Email me for a demo API token”_ — starts a conversation and avoids exposing secrets in the repo. |
+## Live demo
 
-**Security:** Never commit `.env` or real API keys. This repo lists only `.env.example`. `POST /run` is protected by **`API_TOKEN`** (Bearer). `/health` stays unauthenticated so hosting platforms can probe liveness.
+| Link | URL |
+|------|-----|
+| **Frontend** | [ai-agent-smoky.vercel.app](https://ai-agent-smoky.vercel.app) |
+| **API** | [ai-agent-tvpo.onrender.com](https://ai-agent-tvpo.onrender.com) |
+| **Health check** | [ai-agent-tvpo.onrender.com/health](https://ai-agent-tvpo.onrender.com/health) |
 
-## What it does (interview sound bite)
+Want a demo token? Email [honeyumasre01@gmail.com](mailto:honeyumasre01@gmail.com).
 
-You give a **goal**; a **planner** breaks it into steps; an **executor** runs each step with **tools**; a **critic** scores completeness. If the score is too low, the graph **replans** (cap: 5 critic failures). **Memory** is written only after a **passing** critic score. LLM calls use a **single** `invoke_with_fallback` entry point with **model cascade** and **Redis DLQ** on total failure.
+## What it does
+
+You give it a goal. The system handles the rest:
+
+- **Planner** — breaks your goal into atomic steps
+- **Executor** — runs each step using tools (web search, database, APIs, code execution)
+- **Critic** — scores the result 1–10. If the score is below 7, it replans and tries again (max 5 retries)
+- **Memory** — saves successful results to Pinecone so future tasks benefit from past context
+
+Results stream back to you live as **Server-Sent Events**.
 
 ## Architecture
 
@@ -48,97 +57,126 @@ See [`docs/README.md`](docs/README.md) for diagram asset notes.
 
 ## Tech stack
 
-- Python 3.11 · LangGraph · LangChain · FastAPI · SSE  
-- LLMs: Anthropic Claude, OpenAI (GPT‑4o + embeddings), Google Gemini  
-- Data: PostgreSQL (asyncpg), Redis (cache + DLQ), Pinecone (vectors)  
-- Search: Tavily · HTTP: httpx · Containers: Docker / Compose  
+| Layer | Tech |
+|-------|------|
+| **Orchestration** | LangGraph (`StateGraph`) |
+| **LLMs** | Claude → GPT-4o → Gemini (cascade) |
+| **Memory** | Pinecone (vector store) |
+| **Tools** | Tavily (search) · asyncpg · httpx |
+| **API** | FastAPI · SSE streaming |
+| **Cache / DLQ** | Redis |
+| **Database** | PostgreSQL |
+| **Containers** | Docker · Docker Compose |
 
-## Git repository (important)
+## Run locally
 
-The project should be its **own** Git repo (only `ai-agent/`), **not** your Windows user folder.
-
-1. Confirm toplevel: from this directory run `git rev-parse --show-toplevel` — it must print this project path.  
-2. If it prints your home directory, remove the mistaken `C:\Users\honey\.git` (that only removes Git metadata, not your files), then:
-
-   ```bash
-   cd path/to/ai-agent
-   git init
-   git add .
-   git commit -m "initial commit — multi-agent LangGraph service"
-   ```
-
-3. Ensure **`.env` is listed in `.gitignore`** before `git push` (this repo already ignores it).
-
-## Secrets & `.env`
-
-Copy `.env.example` → `.env` and fill in:
-
-- **`API_TOKEN`** — long random string; send `Authorization: Bearer <token>` on `/run`.
-- Provider keys: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, **`GOOGLE_API_KEY`** (Gemini fallback), `TAVILY_API_KEY`, Pinecone, DB URLs, etc.
-
-## Reproducible installs
-
-In a **dedicated venv**:
+### 1. Clone and set up environment
 
 ```bash
+git clone https://github.com/honeyumasree01/ai-agent.git
+cd ai-agent
 python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-pip freeze > requirements.lock.txt
 ```
 
-Commit `requirements.lock.txt` when you change dependencies. See comments in `requirements.txt` about ranges vs lockfile.
+Windows (PowerShell):
 
-## Run locally (Docker)
+```powershell
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
 
-1. Fill `.env` (including **`API_TOKEN`**).
-2. Pinecone index: **dimension 1536**, metric **cosine** for `text-embedding-3-small`.
-3. `docker compose up --build`
-4. `curl http://localhost:8000/health` then call `/run` (with Bearer token).
-
-## Calling `/run`
-
-`POST /run` returns **Server-Sent Events** (`text/event-stream`). Use `-N` with curl so chunks print immediately.
+macOS / Linux:
 
 ```bash
-curl -N -X POST http://localhost:8000/run \
-  -H "Authorization: Bearer YOUR_API_TOKEN" \
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 2. Configure environment
+
+```bash
+cp .env.example .env
+```
+
+Fill in your API keys in `.env` (see `.env.example` for required variables).
+
+### 3. Start with Docker
+
+```bash
+docker compose up --build
+```
+
+### 4. Test it’s running
+
+```bash
+curl http://localhost:8000/health
+```
+
+## Call the API
+
+```bash
+curl -N -X POST https://ai-agent-tvpo.onrender.com/run \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
-  -d "{\"goal\": \"what is 2 + 2, explain your reasoning\"}"
+  -d "{\"goal\": \"what are the top 3 AI tools launched this month\"}"
 ```
 
-Smoke test without extra tools/Tavily; expand goals once the loop is verified.
+The response streams back in real time — you’ll see planner, executor, and critic events as they happen.
 
-## Deploy (e.g. Render)
-
-1. Connect this **GitHub** repo to a **Web Service**; use the **Dockerfile** (or build command + start from README if you adapt).  
-2. Set **all** environment variables from `.env.example` in the dashboard (including **`API_TOKEN`** and provider keys).  
-3. Use the service URL as your **live demo** link. Expect cold starts on free tiers; set **health check** path to `/health`.
-
-## Tests
+## Run tests
 
 ```bash
-pip install -r requirements.txt
-python -m pytest
+python -m pytest tests/test_graph.py -v
 ```
 
-Graph tests mock LLMs and memory (no keys). They do **not** hit `POST /run`; add HTTP tests later if you want to assert Bearer behavior end-to-end.
+Tests mock LLM and memory calls — no API keys needed to run the suite.
 
-## Client disconnects
+## Project structure
 
-`/run` streams LangGraph via a **background task** + queue; on client disconnect the task is **`cancel()`led** so `astream` stops at the next `await`. Pure CPU-bound work inside a node may still run until it yields.
+```text
+ai-agent/
+├── main.py              # FastAPI app, /run and /health
+├── orchestrator.py      # LangGraph StateGraph
+├── agents/
+│   ├── planner.py       # breaks goal into steps
+│   ├── executor.py      # runs tools per step
+│   └── critic.py        # scores and loops back
+├── tools/
+│   ├── search.py        # Tavily web search
+│   ├── database.py      # allowlisted SQL + Redis cache
+│   ├── api.py           # external HTTP calls
+│   └── code_exec.py     # subprocess code execution
+├── db/
+│   └── query_templates.py
+├── memory/
+│   └── vector_store.py  # Pinecone recall + remember
+├── utils/
+│   ├── llm.py           # cascade + DLQ hooks
+│   ├── llm_clients.py
+│   ├── auth.py          # Bearer token verification
+│   ├── health.py        # /health probes
+│   ├── settings.py
+│   ├── retry.py
+│   ├── app_context.py   # DB + Redis pools
+│   └── errors.py
+├── tests/
+│   └── test_graph.py
+├── frontend/
+│   └── index.html       # live UI (deployed on Vercel)
+├── docs/
+│   └── architecture.png
+├── Dockerfile
+├── docker-compose.yml
+└── .env.example
+```
 
-## Operational notes
+## Security
 
-- **Auth:** `POST /run` requires `Authorization: Bearer <API_TOKEN>`.  
-- **Tavily:** `web_search` uses `asyncio.to_thread` around the sync client — fine until very high concurrency.  
-- **DB:** Allowlisted SQL only in `db/query_templates.py`.  
-- **Code exec:** Subprocess on the host — fine for **local** dev; use **E2B** (or similar) before exposing **untrusted** `/run` to the internet with `run_code` enabled.  
+- `POST /run` requires `Authorization: Bearer <token>` — email for a demo token
+- `GET /health` is public for uptime monitoring
+- No secrets in this repo — see `.env.example` for required keys
+- SQL injection prevented via allowlisted query templates in `db/query_templates.py`
 
-## Layout
+---
 
-- `main.py` — FastAPI, SSE, auth on `/run`
-- `utils/llm.py` — LLM cascade + DLQ
-- `utils/auth.py` — Bearer verification
-- `orchestrator.py` — LangGraph + `MemorySaver`
-- `agents/` · `tools/` · `memory/` · `db/`
+Questions or want to see it in action? Reach out at [honeyumasre01@gmail.com](mailto:honeyumasre01@gmail.com).
