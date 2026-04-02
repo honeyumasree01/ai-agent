@@ -1,5 +1,3 @@
-"""FastAPI entry: /health and SSE /run for LangGraph."""
-
 import asyncio
 import json
 import logging
@@ -9,6 +7,7 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import Depends, FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
@@ -35,17 +34,25 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Multi-Agent AI", lifespan=lifespan)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 class GoalBody(BaseModel):
     goal: str = Field(..., min_length=1)
 
 
-async def _graph_astream_producer(
+async def _graph_to_queue(
     graph: Any,
     state: dict[str, Any],
     cfg: dict[str, Any],
     queue: asyncio.Queue,
 ) -> None:
+    # LangGraph astream in its own task so we can cancel it when the client drops
     try:
         async for update in graph.astream(state, cfg, stream_mode="updates"):
             await queue.put(("update", update))
@@ -76,7 +83,7 @@ async def _sse_stream(request: Request, goal: str, task_id: str) -> AsyncIterato
     cfg = {"configurable": {"thread_id": task_id}}
     assert _graph is not None
     queue: asyncio.Queue = asyncio.Queue()
-    worker = asyncio.create_task(_graph_astream_producer(_graph, state, cfg, queue))
+    worker = asyncio.create_task(_graph_to_queue(_graph, state, cfg, queue))
     try:
         while True:
             if await request.is_disconnected():
