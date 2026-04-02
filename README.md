@@ -1,6 +1,6 @@
 # Multi-Agent AI (LangGraph)
 
-A production-style **multi-agent** system: **Planner → Executor (loop) → Critic**, with tool use (search, DB, HTTP, code), **vector memory** (Pinecone), **LLM cascade** (Claude → GPT‑4o → Gemini), **SSE** streaming, and **cooperative cancellation** when the client disconnects.
+A production-style **multi-agent** system: each request runs a **plan → act → verify** loop (executor steps through the plan; the critic either accepts work or sends control back to the planner). Tool use (search, DB, HTTP, code), **vector memory** (Pinecone), **LLM cascade** (Claude → GPT‑4o → Gemini), **SSE** streaming, and **cooperative cancellation** when the client disconnects.
 
 ## Portfolio / live demo
 
@@ -18,26 +18,78 @@ You give a **goal**; a **planner** breaks it into steps; an **executor** runs ea
 
 ## Architecture
 
+Overview (same layout as the repo diagram under `docs/`):
+
+![Architecture — API, LangGraph, tools, memory, model cascade](docs/architecture.png)
+
+**API layer**
+
+| Endpoint | Role |
+|----------|------|
+| `POST /run` | **Bearer** auth; response streams **SSE** |
+| `GET /health` | Probes **PostgreSQL**, **Redis**, and **Pinecone** (and reports configured LLM providers). Does not run the graph. |
+
+**LangGraph `StateGraph`**
+
+1. **Planner** — breaks the goal into steps (uses goal + recalled memory).
+2. **Executor** — runs **tools** step-by-step until the plan is finished (may loop within the executor while steps remain).
+3. **Critic** — scores the outcome **1–10**.
+4. If **score is below 7**, flow returns to the **Planner** for revision. If **score is 7 or higher**, the run ends at **END**.
+5. **↺ At most 5 critic-driven retries** (`attempt_count`), then **END** regardless of score (see `orchestrator.py`).
+
+**Tools** (invoked from the executor): web search (Tavily), allowlisted **database** SQL, **external HTTP** API calls, **subprocess code** execution.
+
+**Memory (Pinecone):** **recall** at the start of `/run` (context into state); **remember** after a passing critic score.
+
+**LLM & resilience:** single entry `invoke_with_fallback` — model order **Claude → GPT‑4o → Gemini**, **exponential backoff** on transient errors, failed invocations **DLQ’d in Redis** on total failure.
+
+<details>
+<summary>Mermaid (text-only equivalent)</summary>
+
 ```mermaid
 flowchart TB
-  subgraph api [API]
-    Run["POST /run SSE"]
-    Health["GET /health"]
+  subgraph API["API layer"]
+    Run["POST /run — Bearer · SSE"]
+    Health["GET /health — postgres · redis · pinecone"]
   end
-  subgraph graph [LangGraph]
-    P[planner]
-    E[executor]
-    C[critic]
+
+  subgraph LG["LangGraph StateGraph"]
+    P["Planner — break goal into steps"]
+    E["Executor — run tools"]
+    C["Critic — score 1–10"]
     P --> E
-    E -->|more steps| E
+    E -->|"more steps"| E
     E --> C
-    C -->|score lt 7| P
-    C -->|score ge 7 or cap| End([END])
+    C -->|"score below 7, retries left"| P
+    C -->|"score 7 plus, or retry cap 5"| X([END])
   end
+
+  subgraph Tools["Tools"]
+    TW[Web search]
+    TD[Database]
+    TA[External API]
+    TC[Code exec]
+  end
+
+  subgraph Mem["Memory — Pinecone"]
+    M["recall · remember"]
+  end
+
   Run --> P
+  E --> TW
+  E --> TD
+  E --> TA
+  E --> TC
+  M -.->|recall / remember| E
+  M -.-> TW
+  M -.-> TD
+  M -.-> TA
+  M -.-> TC
 ```
 
-Add a static image for recruiters: save as [`docs/architecture.png`](docs/README.md) and link it here if you want a non-Mermaid visual.
+</details>
+
+More on the static asset: [`docs/README.md`](docs/README.md).
 
 ## Tech stack
 

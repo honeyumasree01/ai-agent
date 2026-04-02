@@ -1,9 +1,3 @@
 # Diagrams
 
-For your portfolio README, add a high-level architecture image as `architecture.png` in this folder and reference it from the root `README.md`:
-
-```markdown
-![Architecture](docs/architecture.png)
-```
-
-Until then, the root README includes a Mermaid diagram you can render on GitHub.
+The canonical architecture image is [`architecture.png`](architecture.png); the root [`README.md`](../README.md) embeds it. A Mermaid version lives in a collapsible section there for text-only rendering.
