@@ -1,8 +1,12 @@
 # Multi-Agent AI System
 
-A production-grade AI agent that completes tasks end-to-end. Give it a goal — it plans, searches the web, executes each step, and checks its own work before returning an answer.
+> An AI agent that completes tasks end-to-end — give it a goal,  
+> it figures out the steps, searches the web, runs tools, checks  
+> its own work, and hands you a finished answer.
 
-**Built by Honey Umasree Pentakota**
+Most AI tools just answer questions. This one actually *does things* — it plans, executes, and self-corrects in a loop until the result is good enough. Built with LangGraph to orchestrate multiple specialized agents working together.
+
+**Built by [Honey Umasree Pentakota](mailto:honeyumasre01@gmail.com)**
 
 ## Live demo
 
