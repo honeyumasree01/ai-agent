@@ -1,6 +1,6 @@
 # Multi-Agent AI System
 
-> An AI agent that completes tasks end-to-end — give it a goal,  
+> An AI agent that completes tasks end-to-end give it a goal,  
 > it figures out the steps, searches the web, runs tools, checks  
 > its own work, and hands you a finished answer.
 
