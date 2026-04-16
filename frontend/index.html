@@ -10,306 +10,320 @@
 
   :root {
     --bg: #0d0d0f;
-    --device: #1a1f2e;
-    --device-edge: #252b3d;
-    --accent: #f5a623;
-    --accent2: #4a6cf7;
     --screen-bg: #070a12;
+    --accent: #f5a623;
+    --green: #4ade80;
+    --green-deep: #166534;
     --text: #e8eaf0;
-    --text-dim: #6b7280;
-    --green: #00e5a0;
-    --red: #ff4757;
-    --font: 'Space Mono', monospace;
+    --muted: #6b7280;
+    --line: #1a1a1c;
+    --font: 'Space Mono', 'Courier New', monospace;
   }
 
   body {
     background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
     min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .app {
+    max-width: 760px;
+    margin: 0 auto;
+    height: 100vh;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font);
-    overflow-x: hidden;
-    position: relative;
+    flex-direction: column;
+    background: var(--screen-bg);
+    border: 1.5px solid #2a2a3a;
   }
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: radial-gradient(circle, #ffffff08 1px, transparent 1px);
-    background-size: 28px 28px;
-    pointer-events: none;
-  }
-
-  .device {
-    position: relative;
-    width: 420px;
-    background: var(--device);
-    border-radius: 24px;
-    border: 1.5px solid var(--device-edge);
-    padding: 28px 24px 24px;
-    box-shadow:
-      0 0 0 1px #ffffff08,
-      0 40px 80px #00000080,
-      inset 0 1px 0 #ffffff10;
-    z-index: 2;
-  }
-
-  .device-top {
+  .top-bar {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    margin-bottom: 18px;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    padding: 14px 18px;
+    flex-shrink: 0;
   }
 
-  .device-brand {
-    font-family: var(--font);
+  .brand {
     font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    color: var(--text-dim);
+    color: #6b7280;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
+    font-weight: 700;
   }
 
   .status-dots {
     display: flex;
     gap: 6px;
-    align-items: center;
   }
 
-  .dot {
+  .status-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--text-dim);
-    transition: all 0.3s;
+    border: 1px solid transparent;
   }
 
-  .dot.active   { background: var(--green); box-shadow: 0 0 8px var(--green); }
-  .dot.thinking { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 1s ease-in-out infinite; }
-  .dot.error    { background: var(--red);   box-shadow: 0 0 8px var(--red); }
+  .status-dot.green {
+    background: #00e5a0;
+    box-shadow: 0 0 8px #00e5a044;
+  }
 
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .status-dot.amber {
+    background: var(--accent);
+    box-shadow: 0 0 8px #f5a62355;
+  }
 
-  .screen {
-    background: var(--screen-bg);
-    border-radius: 12px;
-    border: 1px solid #ffffff0f;
-    padding: 18px;
-    min-height: 220px;
-    max-height: 320px;
+  .chat-area {
+    flex: 1;
     overflow-y: auto;
-    margin-bottom: 18px;
+    padding: 18px;
     scrollbar-width: thin;
     scrollbar-color: #ffffff15 transparent;
   }
 
-  .screen::-webkit-scrollbar { width: 4px; }
-  .screen::-webkit-scrollbar-track { background: transparent; }
-  .screen::-webkit-scrollbar-thumb { background: #ffffff15; border-radius: 2px; }
+  .chat-area::-webkit-scrollbar { width: 4px; }
+  .chat-area::-webkit-scrollbar-track { background: transparent; }
+  .chat-area::-webkit-scrollbar-thumb { background: #ffffff15; border-radius: 2px; }
 
-  .screen-idle {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 180px;
-    gap: 10px;
-  }
-
-  .screen-idle-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 1.5px solid #ffffff15;
+  .empty-state {
+    min-height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
-  }
-
-  .screen-idle p {
-    font-family: var(--font);
-    font-size: 12px;
-    color: var(--text-dim);
-    text-align: center;
-    line-height: 1.6;
-  }
-
-  .stream-line {
-    font-family: var(--font);
-    font-size: 12px;
-    line-height: 1.8;
-    margin-bottom: 4px;
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
-  }
-
-  .stream-line .tag {
-    font-family: var(--font);
-    font-size: 10px;
-    font-weight: 700;
-    padding: 1px 6px;
-    border-radius: 4px;
-    flex-shrink: 0;
-    margin-top: 2px;
-    letter-spacing: 0.05em;
-  }
-
-  .tag-planner { background: #4a6cf720; color: #4a6cf7; border: 1px solid #4a6cf740; }
-  .tag-executor { background: #00e5a020; color: #00e5a0; border: 1px solid #00e5a040; }
-  .tag-critic   { background: #f5a62320; color: #f5a623; border: 1px solid #f5a62340; }
-  .tag-done     { background: #00e5a030; color: #00e5a0; border: 1px solid #00e5a060; }
-  .tag-error    { background: #ff475720; color: #ff4757; border: 1px solid #ff475740; }
-
-  .stream-line .content { font-family: var(--font); color: var(--text); flex: 1; }
-
-  .result-block {
-    background: #00e5a008;
-    border: 1px solid #00e5a020;
-    border-radius: 8px;
-    padding: 12px;
-    margin-top: 8px;
-  }
-
-  .result-block .result-label {
-    font-family: var(--font);
-    font-size: 10px;
-    color: var(--green);
-    font-weight: 700;
+    color: #6b7280;
+    font-size: 13px;
     letter-spacing: 0.1em;
-    margin-bottom: 8px;
+    text-align: center;
   }
 
-  .result-block .result-text {
-    font-family: var(--font);
-    font-size: 12px;
-    color: var(--text);
-    line-height: 1.8;
+  .run {
+    padding-bottom: 18px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #151518;
+  }
+
+  .run:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .goal-box {
+    border-left: 3px solid var(--accent);
+    background: #111109;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 14px;
+    color: #e0c97a;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 14px;
     white-space: pre-wrap;
   }
 
-  .score-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #f5a62315;
-    border: 1px solid #f5a62330;
-    border-radius: 6px;
-    padding: 4px 10px;
-    font-family: var(--font);
-    font-size: 11px;
-    color: var(--accent);
-    margin-top: 10px;
-  }
-
-  .input-area {
+  .timeline-item {
     display: flex;
-    flex-direction: column;
     gap: 10px;
+    margin-bottom: 12px;
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
   }
 
-  /* goal box — taller, more prominent */
-  .input-wrap textarea {
-    width: 100%;
-    background: var(--screen-bg);
-    border: 1px solid #ffffff15;
-    border-radius: 10px;
-    padding: 14px 16px;
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 12px;
-    resize: none;
-    outline: none;
-    transition: border-color 0.2s;
-    line-height: 1.7;
-    min-height: 96px;
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  .input-wrap textarea:focus { border-color: var(--accent2); }
-  .input-wrap textarea::placeholder { color: var(--text-dim); font-family: var(--font); }
-
-  /* token label */
-  .token-label {
-    font-family: var(--font);
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 0.08em;
-    margin-bottom: 4px;
-  }
-
-  /* token box — comfortable height */
-  .token-wrap input {
-    width: 100%;
-    background: var(--screen-bg);
-    border: 1px solid #ffffff10;
-    border-radius: 10px;
-    padding: 13px 16px;
-    color: var(--text-dim);
-    font-family: var(--font);
-    font-size: 12px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .token-wrap input:focus { border-color: #ffffff25; color: var(--text); }
-  .token-wrap input::placeholder { color: #ffffff25; font-family: var(--font); }
-
-  .run-btn {
-    width: 100%;
-    background: var(--accent);
-    color: #0d0d0f;
-    border: none;
-    border-radius: 10px;
-    padding: 14px;
-    font-family: var(--font);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-transform: uppercase;
-    margin-top: 2px;
-  }
-
-  .run-btn:hover   { transform: translateY(-1px); box-shadow: 0 8px 24px #f5a62340; }
-  .run-btn:active  { transform: translateY(0); }
-  .run-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-  .run-btn.running { background: var(--device-edge); color: var(--text-dim); }
-
-  .device-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid #ffffff08;
-  }
-
-  .screw {
-    width: 10px;
-    height: 10px;
+  .marker {
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-    background: var(--device-edge);
-    border: 1px solid #ffffff12;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+
+  .marker.active {
+    background: var(--accent);
+    border: 1px solid #fcd08d;
+    animation: pulse 1s ease-in-out infinite;
+  }
+
+  .marker.done {
+    background: var(--green-deep);
+    border: 1px solid var(--green);
+    box-shadow: 0 0 0 1px #16653466 inset;
     position: relative;
   }
 
-  .screw::after {
-    content: '';
+  .marker.done::after {
+    content: '✓';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(45deg);
-    width: 6px;
-    height: 1px;
-    background: #ffffff20;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 9px;
+    color: var(--green);
+    font-weight: 700;
   }
 
-  .device-model {
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  .step-content {
+    flex: 1;
+  }
+
+  .step-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .step-label.done { color: var(--green); }
+  .step-label.active { color: var(--accent); }
+
+  .step-desc {
+    color: #e8eaf0;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  .step-time {
+    color: #6b7280;
+    font-size: 10px;
+    margin-top: 4px;
+  }
+
+  .final-answer {
+    margin-left: 24px;
+    margin-top: 8px;
+    background: #061206;
+    border: 1px solid #1a3a1a;
+    border-radius: 8px;
+    padding: 12px;
+    animation: fadeIn 0.3s ease forwards;
+  }
+
+  .final-label {
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 0.12em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .final-label.warning {
+    color: var(--accent);
+  }
+
+  .final-text {
+    color: #9fe1cb;
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1a3a1a transparent;
+  }
+
+  .final-text::-webkit-scrollbar { width: 4px; }
+  .final-text::-webkit-scrollbar-track { background: transparent; }
+  .final-text::-webkit-scrollbar-thumb { background: #1a3a1a; border-radius: 2px; }
+
+  .score-pill {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    background: #0d1f0d;
+    border: 1px solid #1a3a1a;
+    border-radius: 99px;
+    color: var(--green);
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .bottom-panel {
+    border-top: 1px solid var(--line);
+    padding: 14px 18px;
+    flex-shrink: 0;
+    background: var(--screen-bg);
+  }
+
+  .goal-input {
+    width: 100%;
+    background: #0f0f11;
+    border: 1px solid #222;
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: #e8eaf0;
+    font-size: 13px;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 96px;
+    max-height: 180px;
     font-family: var(--font);
+    outline: none;
+  }
+
+  .goal-input::placeholder { color: #6b7280; }
+
+  .token-label {
+    margin-top: 8px;
+    margin-bottom: 4px;
+    color: #6b7280;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .token-input {
+    margin-top: 0;
+    width: 100%;
+    background: #0a0a0b;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: #6b7280;
+    font-size: 12px;
+    font-family: var(--font);
+    outline: none;
+  }
+
+  .token-input::placeholder { color: #6b7280; }
+
+  .run-btn {
+    margin-top: 10px;
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    background: var(--accent);
+    color: #000;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .run-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .bottom-meta {
+    text-align: center;
+    margin-top: 10px;
     font-size: 10px;
     color: #ffffff20;
     letter-spacing: 0.1em;
@@ -317,98 +331,172 @@
 </style>
 </head>
 <body>
-
-<div class="device">
-  <div class="device-top">
-    <span class="device-brand">AI Agent v1</span>
-    <div class="status-dots">
-      <div class="dot active" id="d1" title="postgres"></div>
-      <div class="dot active" id="d2" title="redis"></div>
-      <div class="dot active" id="d3" title="models"></div>
+<div class="app">
+  <div class="top-bar">
+    <span class="brand">AI AGENT · EXECUTION LOG</span>
+    <div class="status-dots" aria-hidden="true">
+      <span class="status-dot green"></span>
+      <span class="status-dot green"></span>
+      <span class="status-dot amber"></span>
     </div>
   </div>
 
-  <div class="screen" id="screen">
-    <div class="screen-idle" id="idle-state">
-      <div class="screen-idle-icon">⚡</div>
-      <p>Multi-agent system ready.<br>Type a goal and press RUN.</p>
-    </div>
-  </div>
+  <main class="chat-area" id="chat-area">
+    <div class="empty-state" id="empty-state">READY · TYPE A GOAL BELOW</div>
+  </main>
 
-  <div class="input-area">
-    <div class="input-wrap">
-      <textarea id="goal-input" placeholder="What do you want the agent to do?" rows="3"></textarea>
-    </div>
-    <div class="token-wrap">
-      <div class="token-label">ACCESS TOKEN</div>
-      <input type="password" id="token-input" placeholder="enter your access token" />
-    </div>
-    <button class="run-btn" id="run-btn" onclick="runAgent()">
-      ▶ &nbsp; Run Agent
-    </button>
-  </div>
-
-  <div class="device-bottom">
-    <div class="screw"></div>
-    <span class="device-model">LangGraph · Claude · GPT-4o</span>
-    <div class="screw"></div>
+  <div class="bottom-panel">
+    <textarea id="goal-input" class="goal-input" placeholder="What do you want the agent to do?"></textarea>
+    <div class="token-label">ACCESS TOKEN</div>
+    <input type="password" id="token-input" class="token-input" placeholder="access token" />
+    <button class="run-btn" id="run-btn" onclick="runAgent()">▶&nbsp; RUN AGENT</button>
+    <div class="bottom-meta">LangGraph · Claude · GPT-4o</div>
   </div>
 </div>
 
 <script>
   const API_BASE = 'https://ai-agent-tvpo.onrender.com';
+  const chatArea = document.getElementById('chat-area');
+  const emptyState = document.getElementById('empty-state');
 
-  function addLine(tag, content, tagClass) {
-    const idle = document.getElementById('idle-state');
-    if (idle) idle.remove();
-    const screen = document.getElementById('screen');
-    const line = document.createElement('div');
-    line.className = 'stream-line';
-    line.innerHTML = `<span class="tag ${tagClass}">${tag}</span><span class="content">${content}</span>`;
-    screen.appendChild(line);
-    screen.scrollTop = screen.scrollHeight;
+  function removeEmptyState() {
+    if (emptyState && emptyState.parentNode) {
+      emptyState.parentNode.removeChild(emptyState);
+    }
   }
 
-  function showResult(text, score) {
-    const screen = document.getElementById('screen');
-    const block = document.createElement('div');
-    block.className = 'result-block';
-    block.innerHTML = `
-      <div class="result-label">FINAL ANSWER</div>
-      <div class="result-text">${text}</div>
-      ${score ? `<div class="score-badge">critic score ${score}/10 &nbsp;✓</div>` : ''}
+  function scrollToBottom() {
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
+
+  function elapsed(startAt) {
+    const ms = Date.now() - startAt;
+    return `${(ms / 1000).toFixed(1)}s`;
+  }
+
+  function createRun(goal) {
+    removeEmptyState();
+    const run = document.createElement('section');
+    run.className = 'run';
+    run.innerHTML = `<div class="goal-box">${goal}</div>`;
+    chatArea.appendChild(run);
+    scrollToBottom();
+    return run;
+  }
+
+  function createStep(run, label, description, startAt, state = 'done') {
+    const item = document.createElement('div');
+    item.className = 'timeline-item';
+
+    const markerClass = state === 'active' ? 'active' : 'done';
+    const labelClass = state === 'active' ? 'active' : 'done';
+
+    item.innerHTML = `
+      <div class="marker ${markerClass}"></div>
+      <div class="step-content">
+        <div class="step-label ${labelClass}">${label}</div>
+        <div class="step-desc">${description}</div>
+        <div class="step-time">${elapsed(startAt)}</div>
+      </div>
     `;
-    screen.appendChild(block);
-    screen.scrollTop = screen.scrollHeight;
+    run.appendChild(item);
+    scrollToBottom();
+    return item;
   }
 
-  function setStatus(state) {
-    ['d1','d2','d3'].forEach(id => {
-      const d = document.getElementById(id);
-      d.className = 'dot';
-      if (state === 'thinking') d.classList.add('thinking');
-      else if (state === 'done') d.classList.add('active');
-      else if (state === 'error') d.classList.add('error');
-    });
+  function setStepDone(step, startAt) {
+    const marker = step.querySelector('.marker');
+    const label = step.querySelector('.step-label');
+    const time = step.querySelector('.step-time');
+    if (!marker || !label || !time) return;
+    marker.classList.remove('active');
+    marker.classList.add('done');
+    label.classList.remove('active');
+    label.classList.add('done');
+    time.textContent = elapsed(startAt);
+  }
+
+  function renderExecutorProgress(totalSteps, completedSteps, runningStep) {
+    const items = [];
+    for (let i = 1; i <= totalSteps; i += 1) {
+      if (i <= completedSteps) {
+        items.push(`✓ step ${i}`);
+      } else if (runningStep === i) {
+        items.push(`⟳ step ${i} running...`);
+      } else {
+        items.push(`• step ${i}`);
+      }
+    }
+    return items.join('  ');
+  }
+
+  async function streamWords(element, text) {
+    const words = String(text).split(/\s+/).filter(Boolean);
+    element.textContent = '';
+    for (let i = 0; i < words.length; i += 1) {
+      element.textContent += `${i === 0 ? '' : ' '}${words[i]}`;
+      scrollToBottom();
+      await new Promise(resolve => setTimeout(resolve, 35));
+    }
+  }
+
+  function formatAnswer(text) {
+    return String(text)
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/(\d+\.\s)/g, '<br><br>$1')
+      .replace(/^-\s/gm, '<br>• ')
+      .replace(/\n/g, '<br>')
+      .trim();
+  }
+
+  async function showFinalAnswer(run, answer, score, isBestEffort = false) {
+    const cleanedAnswer = String(answer)
+      .replace(/\\\(|\\\)|\\\[|\\\]/g, '')
+      .replace(/\\/g, '');
+
+    const box = document.createElement('div');
+    box.className = 'final-answer';
+    box.innerHTML = `
+      <div class="final-label${isBestEffort ? ' warning' : ''}">${isBestEffort ? '⚠ MAX RETRIES REACHED · best available answer' : 'FINAL ANSWER'}</div>
+      <div class="final-text"></div>
+    `;
+    run.appendChild(box);
+    const textEl = box.querySelector('.final-text');
+    textEl.innerHTML = formatAnswer(cleanedAnswer);
+    scrollToBottom();
+
+    if (score !== null && score !== undefined) {
+      const pill = document.createElement('div');
+      pill.className = 'score-pill';
+      pill.textContent = `✓ critic score ${score}/10 · passed`;
+      box.appendChild(pill);
+      scrollToBottom();
+    }
   }
 
   async function runAgent() {
-    const goal  = document.getElementById('goal-input').value.trim();
+    const goal = document.getElementById('goal-input').value.trim();
     const token = document.getElementById('token-input').value.trim();
-    const btn   = document.getElementById('run-btn');
-    const screen = document.getElementById('screen');
+    const btn = document.getElementById('run-btn');
 
-    if (!goal)  { alert('Please enter a goal.'); return; }
+    if (!goal) { alert('Please enter a goal.'); return; }
     if (!token) { alert('Please enter your access token.'); return; }
 
-    screen.innerHTML = '';
+    const run = createRun(goal);
+    const startAt = Date.now();
+
     btn.disabled = true;
-    btn.classList.add('running');
-    btn.textContent = '⏳  Agent thinking...';
-    setStatus('thinking');
+    btn.textContent = '⏳  RUNNING...';
 
     let lastResult = '';
     let criticScore = null;
+    let finalShown = false;
+    let plannerStepCount = 0;
+    let executorCompleted = 0;
+    let executorBlock = null;
+    let executorFinished = false;
+    let maxRetriesReached = false;
 
     try {
       const response = await fetch(`${API_BASE}/run`, {
@@ -422,12 +510,11 @@
 
       if (!response.ok) {
         const err = await response.json();
-        addLine('ERROR', err.detail || `HTTP ${response.status}`, 'tag-error');
-        setStatus('error');
+        createStep(run, 'ERROR', err.detail || `HTTP ${response.status}`, startAt);
         return;
       }
 
-      const reader  = response.body.getReader();
+      const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
 
@@ -444,42 +531,102 @@
           if (!raw || raw === '[DONE]') continue;
           try {
             const data = JSON.parse(raw);
+
             if (data.planner) {
-              addLine('PLAN', `${(data.planner.plan||[]).length} steps planned`, 'tag-planner');
+              const activeStep = createStep(run, 'PLANNER', 'Building plan from goal...', startAt, 'active');
+              setTimeout(() => {
+                const count = (data.planner.plan || []).length;
+                plannerStepCount = count;
+                const desc = activeStep.querySelector('.step-desc');
+                if (desc) desc.textContent = `${count} steps planned`;
+                setStepDone(activeStep, startAt);
+              }, 140);
             }
+
             if (data.executor) {
-              addLine('EXEC', `step ${data.executor.step_index||0} complete`, 'tag-executor');
-              const obs = data.executor.observations || [];
-              if (obs.length > 0) lastResult = obs[obs.length - 1];
+              const stepIndex = data.executor.step_index || 0;
+              executorCompleted = Math.max(executorCompleted, stepIndex);
+
+              const totalSteps = plannerStepCount || Math.max(executorCompleted, stepIndex);
+              const runningStep = executorCompleted < totalSteps ? executorCompleted + 1 : null;
+
+              if (!executorBlock) {
+                executorBlock = createStep(
+                  run,
+                  'EXECUTOR',
+                  renderExecutorProgress(totalSteps, executorCompleted, runningStep),
+                  startAt,
+                  'active'
+                );
+              } else {
+                const desc = executorBlock.querySelector('.step-desc');
+                if (desc) {
+                  desc.textContent = renderExecutorProgress(totalSteps, executorCompleted, runningStep);
+                }
+              }
+
+              if (totalSteps > 0 && executorCompleted >= totalSteps && !executorFinished) {
+                executorFinished = true;
+                const desc = executorBlock.querySelector('.step-desc');
+                const time = executorBlock.querySelector('.step-time');
+                if (desc) desc.textContent = `${totalSteps} steps completed · ${elapsed(startAt)} total`;
+                if (time) time.textContent = elapsed(startAt);
+                setStepDone(executorBlock, startAt);
+              }
+
               if (data.executor.result) lastResult = data.executor.result;
             }
+
             if (data.critic) {
+              if (executorBlock && !executorFinished) {
+                const totalSteps = plannerStepCount || executorCompleted;
+                const desc = executorBlock.querySelector('.step-desc');
+                if (desc) desc.textContent = `${totalSteps} steps completed · ${elapsed(startAt)} total`;
+                setStepDone(executorBlock, startAt);
+                executorFinished = true;
+              }
+
               criticScore = data.critic.critic_score;
-              const attempts = data.critic.attempt_count || 0;
-              addLine('CRITIC',
-                criticScore >= 7
-                  ? `score ${criticScore}/10 — passed`
-                  : `score ${criticScore}/10 — retrying (attempt ${attempts})`,
-                'tag-critic'
+              const attempts = data.critic.attempt_count || 1;
+              const pass = criticScore >= 7;
+              const failedReason = String(data.critic.failed_reason || '').toLowerCase();
+              if (!pass && (attempts >= 5 || failedReason.includes('max retries'))) {
+                maxRetriesReached = true;
+              }
+              const activeStep = createStep(
+                run,
+                'CRITIC',
+                pass
+                  ? `Score ${criticScore}/10 — passed quality gate`
+                  : `Score ${criticScore}/10 — retrying (attempt ${attempts})`,
+                startAt,
+                'active'
               );
+              setTimeout(() => setStepDone(activeStep, startAt), 140);
+
+              if (pass && lastResult && !finalShown) {
+                finalShown = true;
+                await showFinalAnswer(run, lastResult, criticScore, maxRetriesReached);
+              }
             }
-          } catch(e) {}
+          } catch (e) {}
         }
       }
 
-      if (lastResult) {
-        showResult(lastResult, criticScore);
-        addLine('DONE', 'task complete', 'tag-done');
-        setStatus('done');
+      if (lastResult && !finalShown && criticScore >= 7) {
+        finalShown = true;
+        await showFinalAnswer(run, lastResult, criticScore, maxRetriesReached);
       }
 
+      if (!finalShown && lastResult) {
+        await showFinalAnswer(run, lastResult, criticScore, maxRetriesReached);
+      }
     } catch (err) {
-      addLine('ERROR', err.message, 'tag-error');
-      setStatus('error');
+      createStep(run, 'ERROR', err.message, startAt);
     } finally {
       btn.disabled = false;
-      btn.classList.remove('running');
-      btn.innerHTML = '▶ &nbsp; Run Agent';
+      btn.innerHTML = '▶&nbsp; RUN AGENT';
+      scrollToBottom();
     }
   }
 

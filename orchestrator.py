@@ -1,5 +1,3 @@
-"""LangGraph orchestrator: Planner → Executor (loop) → Critic."""
-
 import logging
 from typing import Literal, TypedDict
 
@@ -43,6 +41,7 @@ def route_after_critic(state: AgentState) -> Literal["planner", "end"]:
     score = int(state.get("critic_score") or 0)
     if score >= 7:
         return "end"
+    # critic uses 7 as the bar; below that we replan unless we're out of attempts
     if score < 7 and ac < 5:
         return "planner"
     return "end"

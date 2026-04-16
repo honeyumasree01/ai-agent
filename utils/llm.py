@@ -1,5 +1,3 @@
-"""Single entry point for all LLM invocations — cascade with backoff + DLQ."""
-
 import asyncio
 import logging
 from typing import Any
@@ -47,7 +45,6 @@ async def invoke_with_fallback(
     *,
     task_id: str = "",
 ) -> AIMessage:
-    """Try each model with per-model retries + exponential backoff; DLQ on total failure."""
     settings = get_settings()
     r = redis.from_url(settings.redis_url, decode_responses=True)
     per = 3

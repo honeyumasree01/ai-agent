@@ -1,5 +1,3 @@
-"""Web search via Tavily (async-friendly via thread pool)."""
-
 import asyncio
 import logging
 from typing import Any
@@ -35,6 +33,6 @@ async def _web_search_impl(query: str) -> str:
 
 @tool
 async def web_search(query: str) -> str:
-    """Search the web; returns titles and snippets (max 5)."""
+    """Tavily search; up to 5 results with snippets."""
     logger.debug("web_search query=%s", query[:80])
     return await with_retry(_web_search_impl, query)

@@ -1,5 +1,3 @@
-"""LangGraph integration tests with mocked LLM (no API keys)."""
-
 from __future__ import annotations
 
 import asyncio
@@ -21,7 +19,6 @@ async def test_max_retries_sets_failed_reason(
     mock_memory,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Run this first: ensures cap terminates and does not hang the loop."""
     msgs: list[AIMessage] = []
     for _ in range(5):
         msgs.append(AIMessage(content=MOCK_PLAN_TWO))

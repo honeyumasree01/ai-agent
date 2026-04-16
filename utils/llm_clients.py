@@ -1,5 +1,3 @@
-"""Construct LangChain chat models for cascade. Split from llm.py (line cap)."""
-
 from langchain_anthropic import ChatAnthropic
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_google_genai import ChatGoogleGenerativeAI

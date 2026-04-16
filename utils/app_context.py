@@ -1,5 +1,3 @@
-"""Process-wide async resources (DB pool, Redis) set at FastAPI lifespan."""
-
 import asyncpg
 import redis.asyncio as redis
 

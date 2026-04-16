@@ -1,5 +1,3 @@
-"""Shared fixtures: graph, base state, mocked memory + LLM."""
-
 from __future__ import annotations
 
 import uuid

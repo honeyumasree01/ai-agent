@@ -1,5 +1,3 @@
-"""Executor: one plan step — Claude tool-use via invoke_with_fallback."""
-
 import json
 import logging
 from typing import Any

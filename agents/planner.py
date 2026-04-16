@@ -1,5 +1,3 @@
-"""Planner: decompose goal into JSON steps via LLM."""
-
 import json
 import logging
 
@@ -15,6 +13,7 @@ with shape {"steps": ["atomic step 1", ...]} with 3–7 concise steps. No markdo
 
 
 def _strip_json_fence(raw: str) -> str:
+    # models love ```json ... ``` even when you tell them not to
     s = raw.strip()
     if s.startswith("```"):
         s = s.split("\n", 1)[-1] if "\n" in s else s.removeprefix("```")

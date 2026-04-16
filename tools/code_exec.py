@@ -1,5 +1,3 @@
-"""Sandbox-lite code execution via subprocess (v1)."""
-
 import asyncio
 import logging
 import sys
@@ -9,8 +7,6 @@ from langchain_core.tools import tool
 from utils.retry import with_retry
 
 logger = logging.getLogger(__name__)
-
-# TODO: replace with E2B for stronger isolation
 
 MAX_OUT = 10 * 1024
 EXEC_TIMEOUT = 30.0
@@ -36,6 +32,6 @@ async def _run_code_impl(code: str) -> str:
 
 @tool
 async def run_code(code: str) -> str:
-    """Run Python code; returns stdout (truncated to 10KB)."""
+    """Local python -c; stdout only, capped. Not a real sandbox."""
     logger.debug("run_code len=%s", len(code))
     return await with_retry(_run_code_impl, code)

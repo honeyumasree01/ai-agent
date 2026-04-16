@@ -1,5 +1,3 @@
-"""Critic: score completeness; triggers replan or memory on success."""
-
 import json
 import logging
 import time
@@ -12,7 +10,12 @@ from utils.llm import invoke_with_fallback
 logger = logging.getLogger(__name__)
 
 CRITIC_SYS = """You critique task completion. Return ONLY JSON: \
-{"score": 1-10, "reason": "short justification"}."""
+{"score": 1-10, "reason": "short justification"}.
+
+Consider the complexity of the goal when scoring:
+- Simple factual questions (recipes, definitions, how-to guides) should score 7-9 if the answer is complete and accurate
+- Only score below 7 if the answer is genuinely incomplete, wrong, or missing key information
+- Do not penalize simple answers to simple questions"""
 
 
 async def critic_node(state: dict) -> dict:

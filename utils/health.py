@@ -1,5 +1,3 @@
-"""Dependency health probes for /health."""
-
 from typing import Any
 
 from openai import AsyncOpenAI

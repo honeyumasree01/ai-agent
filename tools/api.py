@@ -1,5 +1,3 @@
-"""HTTP calls via httpx — bearer or none."""
-
 import logging
 from typing import Any
 
@@ -10,8 +8,6 @@ from utils.retry import with_retry
 from utils.settings import get_settings
 
 logger = logging.getLogger(__name__)
-
-# TODO: add OAuth2 flow for third-party providers
 
 
 async def _call_api_impl(
@@ -48,6 +44,6 @@ async def call_external_api(
     body: dict[str, Any],
     auth_type: str,
 ) -> dict[str, Any]:
-    """Call a REST API with JSON body. auth_type: bearer | none."""
+    """REST JSON call. auth_type: bearer | none (OAuth later if we need it)."""
     logger.debug("call_external_api %s %s", method, url[:60])
     return await with_retry(_call_api_impl, url, method, body, auth_type)

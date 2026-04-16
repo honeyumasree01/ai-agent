@@ -1,5 +1,3 @@
-"""Pinecone + OpenAI embeddings for task memory."""
-
 import asyncio
 import logging
 import time
@@ -12,6 +10,10 @@ from pinecone import Pinecone
 from utils.settings import get_settings
 
 logger = logging.getLogger(__name__)
+
+
+def _openai_configured() -> bool:
+    return bool(get_settings().openai_api_key.strip())
 
 
 def _sync_upsert(index: Any, id_: str, vec: list[float], meta: dict[str, Any]) -> None:
@@ -37,9 +39,16 @@ class VectorMemory:
         self._pc = Pinecone(api_key=s.pinecone_api_key)
         self._index_name = s.pinecone_index
 
-    async def _embed_text(self, text: str) -> list[float]:
-        r = await self._embed.embeddings.create(model="text-embedding-3-small", input=text)
-        return list(r.data[0].embedding)
+    async def _embed_text(self, text: str) -> list[float] | None:
+        if not _openai_configured():
+            logger.warning("embeddings skipped: OPENAI_API_KEY empty")
+            return None
+        try:
+            r = await self._embed.embeddings.create(model="text-embedding-3-small", input=text)
+            return list(r.data[0].embedding)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("embeddings failed (%s): %s", type(exc).__name__, exc)
+            return None
 
     async def remember(self, text: str, metadata: dict[str, Any]) -> None:
         s = get_settings()
@@ -47,6 +56,8 @@ class VectorMemory:
             logger.warning("skip remember: no PINECONE_API_KEY")
             return
         vec = await self._embed_text(text)
+        if vec is None:
+            return
         idx = self._pc.Index(self._index_name)
         vid = str(uuid.uuid4())
         meta = {**metadata, "text": text[:8000], "timestamp": metadata.get("timestamp", time.time())}
@@ -57,6 +68,8 @@ class VectorMemory:
         if not s.pinecone_api_key:
             return []
         vec = await self._embed_text(query)
+        if vec is None:
+            return []
         idx = self._pc.Index(self._index_name)
         return await asyncio.to_thread(_sync_query, idx, vec, k)
 

@@ -1,5 +1,3 @@
-"""Allowlisted DB queries with Redis cache."""
-
 import hashlib
 import json
 import logging
@@ -40,6 +38,6 @@ async def _query_impl(template_key: str, params: dict[str, Any]) -> list[dict[st
 
 @tool
 async def query_database(template_key: str, params: dict[str, Any]) -> list[dict[str, Any]]:
-    """Run an allowlisted query template with bound parameters."""
+    """Allowlisted SQL only; params bound by asyncpg."""
     logger.debug("query_database key=%s", template_key)
     return await with_retry(_query_impl, template_key, params)

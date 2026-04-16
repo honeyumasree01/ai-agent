@@ -1,5 +1,3 @@
-"""Shared async retry wrapper for tools and I/O."""
-
 import asyncio
 import logging
 from collections.abc import Awaitable, Callable
@@ -14,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from tavily import TavilyError  # type: ignore[attr-defined]
-except Exception:  # pragma: no cover — optional exact symbol
+except Exception:  # pragma: no cover
 
     class TavilyError(Exception):  # type: ignore[no-redef]
         pass
@@ -41,7 +39,6 @@ async def with_retry(
     max_attempts: int = 3,
     base_delay: float = 2.0,
 ) -> T:
-    """Retry with exponential delay: base_delay ** attempt seconds before retry."""
     last_exc: BaseException | None = None
     for attempt in range(max_attempts):
         try:

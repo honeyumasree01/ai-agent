@@ -1,11 +1,9 @@
-"""Bearer token verification for protected routes."""
-
 from fastapi import HTTPException, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from utils.settings import get_settings
 
-security = HTTPBearer(description="Shared secret for POST /run (set API_TOKEN in .env)")
+security = HTTPBearer(description="POST /run — set API_TOKEN in env")
 
 
 def verify_run_token(credentials: HTTPAuthorizationCredentials = Security(security)) -> None:
@@ -13,7 +11,7 @@ def verify_run_token(credentials: HTTPAuthorizationCredentials = Security(securi
     if not expected:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Server not configured: set API_TOKEN in the environment",
+            detail="API_TOKEN not set",
         )
     if credentials.credentials != expected:
         raise HTTPException(
